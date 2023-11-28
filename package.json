@@ -7,7 +7,7 @@
     "build": "NODE_ENV=production tsup src/index.ts",
     "test": "vitest"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Write 1-bit black and white PNG images",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
