@@ -1,41 +1,35 @@
 import { chunk } from "./chunk";
 import { deflate } from "./deflate";
-import { encode32 } from "./encoder";
+import { encode32, uint8s } from "./encoder";
 
-export async function makeMonochromePng(data: boolean[][]) {
+export default async function makeMonochromePng(data: boolean[][]) {
   const width = data[0].length;
   const height = data.length;
 
   const buffers: Uint8Array[] = [
     // PNG signature
-    new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    uint8s([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
   ];
 
   const append = (b: Uint8Array[]) => buffers.push(...b);
 
-  const bitDepth = 1;
-  const colorType = 0; // grayscale
-  const compressionMethod = 0; // deflate
-  const filterMethod = 0; // adaptive
-  const interlaceMethod = 0; // none
-
   append(
     chunk(
       "IHDR",
-      new Uint8Array([
+      uint8s([
         ...encode32(width),
         ...encode32(height),
-        bitDepth,
-        colorType,
-        compressionMethod,
-        filterMethod,
-        interlaceMethod,
+        1, // bit depth
+        0, // color type
+        0, // deflate
+        0, // adaptive
+        0, // no interlace
       ])
     )
   );
 
   const scanlineWidth = Math.ceil(width / 8) + 1;
-  const img = new Uint8Array(scanlineWidth * height);
+  const img = uint8s(scanlineWidth * height);
 
   let offset = 0;
   function writeScanline(scanline: Uint8Array) {
@@ -45,7 +39,7 @@ export async function makeMonochromePng(data: boolean[][]) {
   }
 
   for (let y = 0; y < height; y++) {
-    const scanline = new Uint8Array(scanlineWidth - 1);
+    const scanline = uint8s(scanlineWidth - 1);
     for (let x = 0; x < width; x++) {
       const byte = Math.floor(x / 8);
       const bit = x % 8;
@@ -57,7 +51,7 @@ export async function makeMonochromePng(data: boolean[][]) {
   }
 
   append(chunk("IDAT", await deflate(img)));
-  append(chunk("IEND", new Uint8Array([])));
+  append(chunk("IEND", uint8s([])));
 
-  return new Uint8Array(buffers.flatMap((b) => [...b]));
+  return uint8s(buffers.flatMap((b) => [...b]));
 }

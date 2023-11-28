@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { makeMonochromePng } from ".";
+import makeMonochromePng from ".";
 import Sharp from "sharp";
 
 test("should produce a valid png", async () => {
@@ -20,6 +20,9 @@ test("should produce a valid png", async () => {
   expect(metadata.channels).toBe(1);
   expect(metadata.hasAlpha).toBe(false);
   expect(metadata.space).toBe("b-w");
+
+  // write the png to disk for manual inspection
+  await sharp.toFile("test1.png");
 });
 
 test("should produce big images too", async () => {
@@ -36,4 +39,7 @@ test("should produce big images too", async () => {
   expect(metadata.channels).toBe(1);
   expect(metadata.hasAlpha).toBe(false);
   expect(metadata.space).toBe("b-w");
+
+  // write the png to disk for manual inspection
+  await sharp.toFile("test2.png");
 });

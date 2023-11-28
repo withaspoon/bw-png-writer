@@ -1,12 +1,13 @@
-import { encode32 } from "./encoder";
+import { encode32, uint8s } from "./encoder";
 
-const crcTable = new Uint32Array(256);
-for (let n = 0; n < 256; n++) {
+let n = 256;
+const crcTable = uint8s(n);
+while (n--) {
   let c = n;
-  for (let k = 0; k < 8; k++) {
-    c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+  let k = 8;
+  while (k--) {
+    crcTable[n] = c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
   }
-  crcTable[n] = c;
 }
 
 export function crc32(data: Uint8Array): Uint8Array {
